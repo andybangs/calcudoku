@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import buildGrid, { GridCell } from './build-grid';
 import puzzles from './puzzles';
+import reset from './reset.svg';
 
 // ---------
-// GRID
+// APP
 // ---------
 
 let Grid = styled.div<{ size: number }>`
@@ -24,9 +25,8 @@ interface CellState extends GridCell {
 
 export default function App() {
   let puzzle = puzzles[0];
-  let [grid, setGrid] = React.useState<CellState[]>(
-    buildGrid(puzzle).map((cell) => ({ ...cell, value: null }))
-  );
+  let initialGrid = buildGrid(puzzle).map((cell) => ({ ...cell, value: null }));
+  let [grid, setGrid] = React.useState<CellState[]>(initialGrid);
 
   function setVal(index: number) {
     return () => {
@@ -39,12 +39,19 @@ export default function App() {
     };
   }
 
+  function resetGrid() {
+    setGrid(initialGrid);
+  }
+
   return (
-    <Grid size={puzzle.size}>
-      {grid.map((cell, i) => (
-        <Cell key={i} size={puzzle.size} onClick={setVal(i)} {...cell} />
-      ))}
-    </Grid>
+    <React.Fragment>
+      <AppHeader resetGrid={resetGrid} />
+      <Grid size={puzzle.size}>
+        {grid.map((cell, i) => (
+          <Cell key={i} size={puzzle.size} onClick={setVal(i)} {...cell} />
+        ))}
+      </Grid>
+    </React.Fragment>
   );
 }
 
@@ -112,5 +119,52 @@ function Cell({ badge, value, onClick, ...rest }: CellProps) {
       {badge && <Badge>{badge}</Badge>}
       <Target onClick={onClick}>{value}</Target>
     </CellCont>
+  );
+}
+
+// ---------
+// HEADER
+// ---------
+
+let Header = styled.header`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75em;
+`;
+
+let Button = styled.button`
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  color: #000;
+  opacity: 0.5;
+  transition: opacity 100ms linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+let Icon = styled.img`
+  width: 1em;
+  margin-left: 0.25em;
+`;
+
+interface AppHeaderProps {
+  resetGrid(): void;
+}
+
+function AppHeader({ resetGrid }: AppHeaderProps) {
+  return (
+    <Header>
+      <Button onClick={resetGrid}>
+        Reset <Icon src={reset} alt="" />
+      </Button>
+    </Header>
   );
 }
