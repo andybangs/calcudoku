@@ -13,7 +13,7 @@ let Grid = styled.div<{ size: number }>`
   height: ${({ size }) => size * 100}px;
   max-width: 90vw;
   max-height: 90vw;
-  border: solid rgb(119, 119, 119) 1px;
+  border: solid #777 1px;
   border-radius: 20px;
   display: grid;
   grid-template-columns: repeat(${({ size }) => size}, 1fr);
@@ -82,6 +82,7 @@ export default function App() {
           />
         ))}
       </Grid>
+      <Tiles size={puzzle.size} />
     </React.Fragment>
   );
 }
@@ -107,7 +108,7 @@ let CellCont = styled.div<{ borderRight: boolean; borderBottom: boolean; size: n
   height: 100px;
   max-width: ${({ size }) => 90 / size}vw;
   max-height: ${({ size }) => 90 / size}vw;
-  border: solid rgb(119, 119, 119) 0;
+  border: solid #777 0;
   border-right-width: ${({ borderRight }) => (borderRight ? '1px' : 0)};
   border-bottom-width: ${({ borderBottom }) => (borderBottom ? '1px' : 0)};
   user-select: none;
@@ -123,10 +124,10 @@ let Badge = styled.span<{ valid?: boolean }>`
   min-width: 1.2em;
   text-align: center;
   padding: 0.2em;
-  color: ${({ valid }) => (valid ? '#fff' : 'rgb(51, 51, 51)')};
-  background-color: ${({ valid }) => (valid ? 'rgb(3, 155, 229)' : '#fff')};
+  color: ${({ valid }) => (valid ? '#fff' : '#333')};
+  background-color: ${({ valid }) => (valid ? '#219be5' : '#fff')};
   filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 3px 4px);
-  border-color: ${({ valid }) => (valid ? 'rgb(3, 155, 229)' : 'rgb(51, 51, 51)')};
+  border-color: ${({ valid }) => (valid ? '#219be5' : '#333')};
   border-style: solid;
   border-width: 2px;
   border-radius: 1.5em;
@@ -143,9 +144,8 @@ let Target = styled.span<{ complete: boolean; index: number }>`
   width: 75%;
   height: 75%;
   font-weight: 700;
-  background-color: ${({ children }) => children && 'rgb(235, 247, 253)'};
-  border: ${({ children }) =>
-    children ? 'solid rgb(3, 155, 229) 2px' : 'dashed rgb(187, 187, 187) 2px'};
+  background-color: ${({ children }) => children && '#ebf7fd'};
+  border: ${({ children }) => (children ? 'solid #219be5 2px' : 'dashed #bbb 2px')};
   border-radius: 12px;
   cursor: ${({ children }) => (children ? 'grab' : 'default')};
   display: flex;
@@ -157,7 +157,7 @@ let Target = styled.span<{ complete: boolean; index: number }>`
   &:hover {
     width: ${({ children }) => !children && '85%'};
     height: ${({ children }) => !children && '85%'};
-    border-color: rgb(3, 155, 229);
+    border-color: #219be5;
   }
 `;
 
@@ -180,6 +180,61 @@ function Cell(props: CellProps) {
 }
 
 // ---------
+// TILES
+// ---------
+
+let TileCont = styled.div<{ size: number }>`
+  width: 64px;
+  height: 64px;
+  max-width: ${({ size }) => (90 / size) * 0.6375}vw;
+  max-height: ${({ size }) => (90 / size) * 0.6375}vw;
+  font-weight: 700;
+  background-color: #fff;
+  border: solid #219be5 2px;
+  border-radius: 12px;
+  cursor: grab;
+  filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 3px 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+interface TileProps {
+  children: number;
+  size: number;
+}
+
+function Tile({ children, size }: TileProps) {
+  return <TileCont size={size}>{children}</TileCont>;
+}
+
+let TilesCont = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 1.5em;
+  padding: 0 1em;
+`;
+
+interface TilesProps {
+  size: number;
+}
+
+function Tiles({ size }: TilesProps) {
+  let labels = new Array(size).fill(0).map((_, i) => i + 1);
+
+  return (
+    <TilesCont>
+      {labels.map((label, i) => (
+        <Tile key={i} size={size}>
+          {label}
+        </Tile>
+      ))}
+    </TilesCont>
+  );
+}
+
+// ---------
 // HEADER
 // ---------
 
@@ -189,18 +244,13 @@ let Header = styled.header`
   justify-content: space-between;
   align-items: center;
   height: 1.5em;
-  margin-bottom: 0.5em;
-`;
-
-let textOpacity = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
+  margin-bottom: 1em;
 `;
 
 let Text = styled.p`
   margin: 0;
+  font-size: 0.9em;
   font-weight: 500;
-  animation: ${textOpacity} 750ms linear;
 `;
 
 let Button = styled.button`
@@ -210,9 +260,11 @@ let Button = styled.button`
   border: 0;
   outline: none;
   font: inherit;
+  font-size: 0.9em;
   font-weight: 500;
   cursor: pointer;
   color: #000;
+  background-color: inherit;
   opacity: 0.5;
   transition: opacity 100ms linear;
 
@@ -237,13 +289,15 @@ function AppHeader({ complete, resetGrid }: AppHeaderProps) {
       <Button onClick={resetGrid}>
         Reset <Icon src={reset} alt="" />
       </Button>
-      {complete && (
+      {complete ? (
         <Text>
           <span role="img" aria-label="Congratulations!">
             🎊
           </span>{' '}
           You got it!
         </Text>
+      ) : (
+        <Text>Drag the tiles into the grid</Text>
       )}
     </Header>
   );
