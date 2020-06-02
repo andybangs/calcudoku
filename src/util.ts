@@ -83,6 +83,50 @@ export function cageValid(result: number, operator: Operator, operands: number[]
   return eval(`${lhs} === ${result}`);
 }
 
+export function gridValid(grid: number[]) {
+  let size = Math.sqrt(grid.length);
+
+  // check rows
+  for (let i = 0; i < grid.length; i += size) {
+    let set = new Set<number>();
+
+    for (let j = 0; j < size; j++) {
+      set.add(grid[i + j]);
+    }
+
+    if (set.size !== size) {
+      return false;
+    }
+
+    for (let i = 1; i <= size; i++) {
+      if (!set.has(i)) {
+        return false;
+      }
+    }
+  }
+
+  // check columns
+  for (let i = 0; i < size; i++) {
+    let set = new Set<number>();
+
+    for (let j = 0; j < grid.length; j += size) {
+      set.add(grid[i + j]);
+    }
+
+    if (set.size !== size) {
+      return false;
+    }
+
+    for (let i = 1; i <= size; i++) {
+      if (!set.has(i)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 // ---------
 // PRIVATE
 // ---------

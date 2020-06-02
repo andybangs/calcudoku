@@ -1,4 +1,4 @@
-import { buildGrid, parseCages, cageValid, Operator } from './util';
+import { buildGrid, parseCages, cageValid, gridValid } from './util';
 import puzzles from './puzzles';
 
 test('buildGrid', () => {
@@ -189,5 +189,28 @@ describe('cageValid', () => {
   test('[equals] invalid', () => {
     expect(cageValid(6, '=', [7])).toBe(false);
     expect(cageValid(6, '=', [6, 7])).toBe(false);
+  });
+});
+
+describe('gridValid', () => {
+  test('1', () => {
+    expect(gridValid([1])).toBe(true);
+  });
+
+  test('2x2', () => {
+    expect(gridValid([1, 2, 2, 1])).toBe(true);
+    expect(gridValid([1, 2, 1, 2])).toBe(false);
+    expect(gridValid([3, 4, 5, 6])).toBe(false);
+  });
+
+  test('3x3', () => {
+    expect(gridValid([1, 2, 3, 2, 3, 1, 3, 1, 2])).toBe(true);
+    expect(gridValid([1, 2, 3, 1, 2, 3, 1, 2, 3])).toBe(false);
+    expect(gridValid([1, 2, 3, 4, 5, 6, 7, 8, 9])).toBe(false);
+  });
+
+  test('4x4', () => {
+    expect(gridValid([2, 4, 1, 3, 3, 1, 2, 4, 4, 2, 3, 1, 1, 3, 4, 2])).toBe(true);
+    expect(gridValid([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4])).toBe(false);
   });
 });

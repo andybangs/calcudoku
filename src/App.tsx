@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
-import { buildGrid, parseCages, cageValid, GridCell } from './util';
+import styled, { css, keyframes } from 'styled-components';
+import { buildGrid, parseCages, cageValid, gridValid, GridCell } from './util';
 import puzzles from './puzzles';
 import reset from './reset.svg';
 
@@ -30,6 +30,7 @@ let initialGrid = buildGrid(puzzle).map((cell) => ({ ...cell, value: null, valid
 
 export default function App() {
   let [grid, setGrid] = React.useState<CellState[]>(initialGrid);
+  let [complete, setComplete] = React.useState<boolean>(false);
 
   function setVal(index: number) {
     return () => {
@@ -53,24 +54,46 @@ export default function App() {
         }
 
         setGrid(updatedGrid);
+
+        if (gridFull(updatedGrid)) {
+          setComplete(gridValid(updatedGrid.map((cell) => cell.value as number)));
+        }
       }
     };
   }
 
   function resetGrid() {
     setGrid(initialGrid);
+    setComplete(false);
   }
 
   return (
     <React.Fragment>
-      <AppHeader resetGrid={resetGrid} />
+      <AppHeader complete={complete} resetGrid={resetGrid} />
       <Grid size={puzzle.size}>
         {grid.map((cell, i) => (
-          <Cell key={i} size={puzzle.size} onClick={setVal(i)} {...cell} />
+          <Cell
+            key={i}
+            index={i}
+            complete={complete}
+            size={puzzle.size}
+            onClick={setVal(i)}
+            {...cell}
+          />
         ))}
       </Grid>
     </React.Fragment>
   );
+}
+
+function gridFull(grid: CellState[]) {
+  grid.forEach((cell) => {
+    if (cell.value === null) {
+      return false;
+    }
+  });
+
+  return true;
 }
 
 // ---------
@@ -107,9 +130,16 @@ let Badge = styled.span<{ valid?: boolean }>`
   border-style: solid;
   border-width: 2px;
   border-radius: 1.5em;
+  z-index: 1;
 `;
 
-let Target = styled.span`
+let targetScale = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+`;
+
+let Target = styled.span<{ complete: boolean; index: number }>`
   width: 75%;
   height: 75%;
   font-weight: 700;
@@ -121,6 +151,8 @@ let Target = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: ${({ complete, index }) =>
+    complete && css`${targetScale} 500ms linear 1 ${index * 50}ms`};
 
   &:hover {
     width: ${({ children }) => !children && '85%'};
@@ -130,15 +162,19 @@ let Target = styled.span`
 `;
 
 interface CellProps extends CellState {
+  index: number;
+  complete: boolean;
   size: number;
   onClick(event: React.MouseEvent): void;
 }
 
-function Cell({ badge, value, valid, onClick, ...rest }: CellProps) {
+function Cell(props: CellProps) {
   return (
-    <CellCont {...rest}>
-      {badge && <Badge valid={valid}>{badge}</Badge>}
-      <Target onClick={onClick}>{value}</Target>
+    <CellCont size={props.size} borderBottom={props.borderBottom} borderRight={props.borderRight}>
+      {props.badge && <Badge valid={props.valid}>{props.badge}</Badge>}
+      <Target index={props.index} complete={props.complete} onClick={props.onClick}>
+        {props.value}
+      </Target>
     </CellCont>
   );
 }
@@ -149,8 +185,22 @@ function Cell({ badge, value, valid, onClick, ...rest }: CellProps) {
 
 let Header = styled.header`
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.75em;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  height: 1.5em;
+  margin-bottom: 0.5em;
+`;
+
+let textOpacity = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+let Text = styled.p`
+  margin: 0;
+  font-weight: 500;
+  animation: ${textOpacity} 750ms linear;
 `;
 
 let Button = styled.button`
@@ -177,15 +227,24 @@ let Icon = styled.img`
 `;
 
 interface AppHeaderProps {
+  complete: boolean;
   resetGrid(): void;
 }
 
-function AppHeader({ resetGrid }: AppHeaderProps) {
+function AppHeader({ complete, resetGrid }: AppHeaderProps) {
   return (
     <Header>
       <Button onClick={resetGrid}>
         Reset <Icon src={reset} alt="" />
       </Button>
+      {complete && (
+        <Text>
+          <span role="img" aria-label="Congratulations!">
+            🎊
+          </span>{' '}
+          You got it!
+        </Text>
+      )}
     </Header>
   );
 }
