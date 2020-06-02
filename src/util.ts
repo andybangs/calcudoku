@@ -6,9 +6,7 @@ export type GridCell = {
   borderBottom: boolean;
 };
 
-export type Grid = GridCell[];
-
-export default function buildGrid({ size, cages }: Puzzle): Grid {
+export function buildGrid({ size, cages }: Puzzle): GridCell[] {
   let gridIndex = getIndex(size);
   let grid = initGrid(size);
 
@@ -46,6 +44,45 @@ export default function buildGrid({ size, cages }: Puzzle): Grid {
   return grid;
 }
 
+export type Operator = '+' | '-' | '*' | '/' | '=';
+
+export type Cage = {
+  result: number;
+  operator: Operator;
+  cells: number[];
+};
+
+export function parseCages(puzzle: Puzzle): Cage[] {
+  let gridIndex = getIndex(puzzle.size);
+  let cages: Cage[] = [];
+
+  for (let cage of puzzle.cages) {
+    let arr = cage.split(' ');
+
+    cages.push({
+      result: parseInt(arr[0], 10),
+      operator: arr[1] as Operator,
+      cells: arr.slice(2).map(gridIndex),
+    });
+  }
+
+  return cages;
+}
+
+export function cageValid(result: number, operator: Operator, operands: number[]) {
+  if (operator === '=') {
+    return operands.length === 1 && operands[0] === result;
+  }
+
+  let lhs = operands
+    .sort((a, b) => (a > b ? -1 : 1))
+    .map((val, i) => (i !== operands.length - 1 ? val.toString().concat(operator) : val))
+    .join('');
+
+  // eslint-disable-next-line no-eval
+  return eval(`${lhs} === ${result}`);
+}
+
 // ---------
 // PRIVATE
 // ---------
@@ -58,8 +95,6 @@ function getNeighbors(cell: string) {
     right: String.fromCharCode(cell.charCodeAt(0) + 1).concat(cell.charAt(1)),
   };
 }
-
-type Operator = '+' | '-' | '*' | '/' | '=';
 
 function buildBadge(result: number, operator: Operator) {
   let badge = result.toString();
@@ -76,7 +111,7 @@ function getIndex(size: number) {
 }
 
 function initGrid(size: number) {
-  let grid: Grid = [];
+  let grid: GridCell[] = [];
 
   for (let i = 0; i < size ** 2; i++) {
     grid.push({

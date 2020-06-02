@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import buildGrid, { GridCell } from './build-grid';
+import { buildGrid, parseCages, cageValid, GridCell } from './util';
 import puzzles from './puzzles';
 import reset from './reset.svg';
 
@@ -21,11 +21,14 @@ let Grid = styled.div<{ size: number }>`
 
 interface CellState extends GridCell {
   value: number | null;
+  valid?: boolean;
 }
 
+let puzzle = puzzles[0];
+let cages = parseCages(puzzle);
+let initialGrid = buildGrid(puzzle).map((cell) => ({ ...cell, value: null, valid: false }));
+
 export default function App() {
-  let puzzle = puzzles[0];
-  let initialGrid = buildGrid(puzzle).map((cell) => ({ ...cell, value: null }));
   let [grid, setGrid] = React.useState<CellState[]>(initialGrid);
 
   function setVal(index: number) {
@@ -34,7 +37,22 @@ export default function App() {
       let value = input ? parseInt(input, 10) : null;
 
       if (value === null || (value > 0 && value <= puzzle.size)) {
-        setGrid(grid.map((cell, i) => (i === index ? { ...cell, value } : cell)));
+        let updatedGrid = grid.map((cell, i) => (i === index ? { ...cell, value } : cell));
+        let cage = cages.filter((cage) => cage.cells.includes(index))[0];
+        let operands: number[] = updatedGrid
+          .filter((cell, i) => cage.cells.includes(i) && cell.value !== null)
+          .map((cell) => cell.value as number);
+
+        if (
+          operands.length === cage.cells.length &&
+          cageValid(cage.result, cage.operator, operands)
+        ) {
+          updatedGrid[cage.cells[0]].valid = true;
+        } else {
+          updatedGrid[cage.cells[0]].valid = false;
+        }
+
+        setGrid(updatedGrid);
       }
     };
   }
@@ -75,16 +93,19 @@ let CellCont = styled.div<{ borderRight: boolean; borderBottom: boolean; size: n
   justify-content: center;
 `;
 
-let Badge = styled.span`
+let Badge = styled.span<{ valid?: boolean }>`
   position: absolute;
   top: -0.5em;
   left: -0.5em;
   min-width: 1.2em;
   text-align: center;
   padding: 0.2em;
-  background-color: white;
+  color: ${({ valid }) => (valid ? '#fff' : 'rgb(51, 51, 51)')};
+  background-color: ${({ valid }) => (valid ? 'rgb(3, 155, 229)' : '#fff')};
   filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 3px 4px);
-  border: solid rgb(51, 51, 51) 2px;
+  border-color: ${({ valid }) => (valid ? 'rgb(3, 155, 229)' : 'rgb(51, 51, 51)')};
+  border-style: solid;
+  border-width: 2px;
   border-radius: 1.5em;
 `;
 
@@ -113,10 +134,10 @@ interface CellProps extends CellState {
   onClick(event: React.MouseEvent): void;
 }
 
-function Cell({ badge, value, onClick, ...rest }: CellProps) {
+function Cell({ badge, value, valid, onClick, ...rest }: CellProps) {
   return (
     <CellCont {...rest}>
-      {badge && <Badge>{badge}</Badge>}
+      {badge && <Badge valid={valid}>{badge}</Badge>}
       <Target onClick={onClick}>{value}</Target>
     </CellCont>
   );
