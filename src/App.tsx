@@ -1,11 +1,64 @@
 import React from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { DndProvider, useDrag, useDrop, useDragLayer } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import styled, { css, keyframes } from 'styled-components';
 import { buildGrid, parseCages, cageValid, gridValid, GridCell } from './util';
 import puzzles from './puzzles';
 import reset from './reset.svg';
+
+// ---------
+// DRAG LAYER
+// ---------
+
+let TilePreview = styled.div<{ size: number }>`
+  width: 64px;
+  height: 64px;
+  max-width: ${({ size }) => (90 / size) * 0.6375}vw;
+  max-height: ${({ size }) => (90 / size) * 0.6375}vw;
+  font-weight: 700;
+  background-color: #fff;
+  border: solid #219be5 2px;
+  border-radius: 12px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-20deg);
+`;
+
+let DragLayerCont = styled.div`
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+`;
+
+interface DragLayerProps {
+  size: number;
+}
+
+function DragLayer({ size }: DragLayerProps) {
+  const { item, isDragging, sourceClientOffset } = useDragLayer((monitor) => ({
+    item: monitor.getItem(),
+    isDragging: monitor.isDragging(),
+    sourceClientOffset: monitor.getSourceClientOffset(),
+  }));
+
+  if (!item || !isDragging || !sourceClientOffset) {
+    return null;
+  }
+
+  return (
+    <DragLayerCont>
+      <div style={{ transform: `translate(${sourceClientOffset.x}px, ${sourceClientOffset.y}px)` }}>
+        <TilePreview size={size}>{item.value}</TilePreview>
+      </div>
+    </DragLayerCont>
+  );
+}
 
 // ---------
 // APP
@@ -82,6 +135,7 @@ export default function App() {
           ))}
         </Grid>
         <Tiles size={puzzle.size} />
+        {'ontouchstart' in window && <DragLayer size={puzzle.size} />}
       </DndProvider>
     </React.Fragment>
   );
@@ -231,20 +285,9 @@ function Target({ children, index, complete, handleDrop }: TargetProps) {
 // TILES
 // ---------
 
-let TileCont = styled.div<{ size: number }>`
-  width: 64px;
-  height: 64px;
-  max-width: ${({ size }) => (90 / size) * 0.6375}vw;
-  max-height: ${({ size }) => (90 / size) * 0.6375}vw;
-  font-weight: 700;
-  background-color: #fff;
-  border: solid #219be5 2px;
-  border-radius: 12px;
-  cursor: grab;
+let TileCont = styled(TilePreview)`
   filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 3px 4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transform: none;
 `;
 
 interface TileProps {
