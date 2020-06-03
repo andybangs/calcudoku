@@ -1,4 +1,7 @@
 import React from 'react';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 import styled, { css, keyframes } from 'styled-components';
 import { buildGrid, parseCages, cageValid, gridValid, GridCell } from './util';
 import puzzles from './puzzles';
@@ -33,31 +36,26 @@ export default function App() {
   let [complete, setComplete] = React.useState<boolean>(false);
 
   function setVal(index: number) {
-    return () => {
-      let input = window.prompt();
-      let value = input ? parseInt(input, 10) : null;
+    return (value: number | null) => {
+      let updatedGrid = grid.map((cell, i) => (i === index ? { ...cell, value } : cell));
+      let cage = cages.filter((cage) => cage.cells.includes(index))[0];
+      let operands: number[] = updatedGrid
+        .filter((cell, i) => cage.cells.includes(i) && cell.value !== null)
+        .map((cell) => cell.value as number);
 
-      if (value === null || (value > 0 && value <= puzzle.size)) {
-        let updatedGrid = grid.map((cell, i) => (i === index ? { ...cell, value } : cell));
-        let cage = cages.filter((cage) => cage.cells.includes(index))[0];
-        let operands: number[] = updatedGrid
-          .filter((cell, i) => cage.cells.includes(i) && cell.value !== null)
-          .map((cell) => cell.value as number);
+      if (
+        operands.length === cage.cells.length &&
+        cageValid(cage.result, cage.operator, operands)
+      ) {
+        updatedGrid[cage.cells[0]].valid = true;
+      } else {
+        updatedGrid[cage.cells[0]].valid = false;
+      }
 
-        if (
-          operands.length === cage.cells.length &&
-          cageValid(cage.result, cage.operator, operands)
-        ) {
-          updatedGrid[cage.cells[0]].valid = true;
-        } else {
-          updatedGrid[cage.cells[0]].valid = false;
-        }
+      setGrid(updatedGrid);
 
-        setGrid(updatedGrid);
-
-        if (gridFull(updatedGrid)) {
-          setComplete(gridValid(updatedGrid.map((cell) => cell.value as number)));
-        }
+      if (gridFull(updatedGrid)) {
+        setComplete(gridValid(updatedGrid.map((cell) => cell.value as number)));
       }
     };
   }
@@ -70,19 +68,21 @@ export default function App() {
   return (
     <React.Fragment>
       <AppHeader complete={complete} resetGrid={resetGrid} />
-      <Grid size={puzzle.size}>
-        {grid.map((cell, i) => (
-          <Cell
-            key={i}
-            index={i}
-            complete={complete}
-            size={puzzle.size}
-            onClick={setVal(i)}
-            {...cell}
-          />
-        ))}
-      </Grid>
-      <Tiles size={puzzle.size} />
+      <DndProvider backend={'ontouchstart' in window ? TouchBackend : HTML5Backend}>
+        <Grid size={puzzle.size}>
+          {grid.map((cell, i) => (
+            <Cell
+              key={i}
+              index={i}
+              complete={complete}
+              size={puzzle.size}
+              handleDrop={setVal(i)}
+              {...cell}
+            />
+          ))}
+        </Grid>
+        <Tiles size={puzzle.size} />
+      </DndProvider>
     </React.Fragment>
   );
 }
@@ -111,7 +111,6 @@ let CellCont = styled.div<{ borderRight: boolean; borderBottom: boolean; size: n
   border: solid #777 0;
   border-right-width: ${({ borderRight }) => (borderRight ? '1px' : 0)};
   border-bottom-width: ${({ borderBottom }) => (borderBottom ? '1px' : 0)};
-  user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,18 +133,47 @@ let Badge = styled.span<{ valid?: boolean }>`
   z-index: 1;
 `;
 
+interface CellProps extends CellState {
+  index: number;
+  complete: boolean;
+  size: number;
+  handleDrop(value: number | null): void;
+}
+
+function Cell(props: CellProps) {
+  return (
+    <CellCont size={props.size} borderBottom={props.borderBottom} borderRight={props.borderRight}>
+      {props.badge && <Badge valid={props.valid}>{props.badge}</Badge>}
+      <Target index={props.index} complete={props.complete} handleDrop={props.handleDrop}>
+        {props.value}
+      </Target>
+    </CellCont>
+  );
+}
+
 let targetScale = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 `;
 
-let Target = styled.span<{ complete: boolean; index: number }>`
-  width: 75%;
-  height: 75%;
+let TargetCont = styled.span<{
+  children: number | null;
+  complete: boolean;
+  index: number;
+  isOver: boolean;
+}>`
+  width: ${({ children, isOver }) => (!children && isOver ? '85%' : '75% ')};
+  height: ${({ children, isOver }) => (!children && isOver ? '85%' : '75% ')};
   font-weight: 700;
-  background-color: ${({ children }) => children && '#ebf7fd'};
-  border: ${({ children }) => (children ? 'solid #219be5 2px' : 'dashed #bbb 2px')};
+  background-color: ${({ children, isOver }) => {
+    if (children && !isOver) return '#ebf7fd';
+    if (children && isOver) return '#219be5';
+    return 'inherit';
+  }};
+  border-style: ${({ children }) => (children ? 'solid' : 'dashed')};
+  border-color: ${({ children, isOver }) => (children || isOver ? '#219be5' : '#bbb')};
+  border-width: 2px;
   border-radius: 12px;
   cursor: ${({ children }) => (children ? 'grab' : 'default')};
   display: flex;
@@ -153,29 +181,49 @@ let Target = styled.span<{ complete: boolean; index: number }>`
   justify-content: center;
   animation: ${({ complete, index }) =>
     complete && css`${targetScale} 500ms linear 1 ${index * 50}ms`};
-
-  &:hover {
-    width: ${({ children }) => !children && '85%'};
-    height: ${({ children }) => !children && '85%'};
-    border-color: #219be5;
-  }
 `;
 
-interface CellProps extends CellState {
+interface TargetProps {
+  children: number | null;
   index: number;
   complete: boolean;
-  size: number;
-  onClick(event: React.MouseEvent): void;
+  handleDrop(value: number | null): void;
 }
 
-function Cell(props: CellProps) {
+function Target({ children, index, complete, handleDrop }: TargetProps) {
+  let ref = React.useRef(null);
+
+  let [{ isDragging }, drag] = useDrag({
+    item: { type: 'Tile', value: children },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  let [{ isOver }, drop] = useDrop({
+    accept: 'Tile',
+    drop(item: any) {
+      handleDrop(item.value);
+    },
+    collect(monitor) {
+      return {
+        isOver: monitor.isOver(),
+      };
+    },
+  });
+
+  drag(drop(ref));
+
+  React.useEffect(() => {
+    if (isDragging && children) {
+      handleDrop(null);
+    }
+  });
+
   return (
-    <CellCont size={props.size} borderBottom={props.borderBottom} borderRight={props.borderRight}>
-      {props.badge && <Badge valid={props.valid}>{props.badge}</Badge>}
-      <Target index={props.index} complete={props.complete} onClick={props.onClick}>
-        {props.value}
-      </Target>
-    </CellCont>
+    <TargetCont ref={ref} index={index} complete={complete} isOver={isOver}>
+      {children}
+    </TargetCont>
   );
 }
 
@@ -205,7 +253,19 @@ interface TileProps {
 }
 
 function Tile({ children, size }: TileProps) {
-  return <TileCont size={size}>{children}</TileCont>;
+  let ref = React.useRef(null);
+
+  let [, drag] = useDrag({
+    item: { type: 'Tile', value: children },
+  });
+
+  drag(ref);
+
+  return (
+    <TileCont ref={ref} size={size}>
+      {children}
+    </TileCont>
+  );
 }
 
 let TilesCont = styled.div`
