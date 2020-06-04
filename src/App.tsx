@@ -49,7 +49,7 @@ export default function App() {
         i === index ? { ...cell, value: item ? item.value : null } : cell
       );
 
-      if (item && item.id) {
+      if (item && typeof item.id !== 'undefined') {
         updatedGrid[item.id].value = temp;
         updatedGrid = validateCage(updatedGrid, cages, item.id);
       }
