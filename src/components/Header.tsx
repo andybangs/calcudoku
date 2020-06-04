@@ -4,7 +4,6 @@ import reset from './reset.svg';
 
 let HeaderCont = styled.header`
   display: flex;
-  flex-direction: row-reverse;
   justify-content: space-between;
   align-items: center;
   height: 1.5em;
@@ -45,23 +44,29 @@ let Icon = styled.img`
 interface HeaderProps {
   complete: boolean;
   resetGrid(): void;
+  nextPuzzle(): void;
 }
 
-export function Header({ complete, resetGrid }: HeaderProps) {
+export function Header({ complete, resetGrid, nextPuzzle }: HeaderProps) {
   return (
     <HeaderCont>
-      <Button onClick={resetGrid}>
-        Reset <Icon src={reset} alt="" />
-      </Button>
       {complete ? (
-        <Text>
-          <span role="img" aria-label="Congratulations!">
-            🎊
-          </span>{' '}
-          You got it!
-        </Text>
+        <React.Fragment>
+          <Text>
+            <span role="img" aria-label="Congratulations!">
+              🎊
+            </span>{' '}
+            You got it!
+          </Text>
+          <Button onClick={nextPuzzle}>Try another!</Button>
+        </React.Fragment>
       ) : (
-        <Text>Drag the tiles into the grid</Text>
+        <React.Fragment>
+          <Text>Drag the tiles into the grid</Text>
+          <Button onClick={resetGrid}>
+            Reset <Icon src={reset} alt="" />
+          </Button>
+        </React.Fragment>
       )}
     </HeaderCont>
   );

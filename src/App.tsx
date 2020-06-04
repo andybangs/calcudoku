@@ -6,13 +6,8 @@ import { Header } from './components/Header';
 import { Grid, Cell, Badge, Tiles } from './components/Styled';
 import { Target } from './components/Target';
 import { Tile, TilePreview } from './components/Tile';
-import { buildGrid, parseCages, cageValid, gridValid, GridCell } from './util';
-import puzzles from './puzzles';
-
-let puzzle = puzzles[0];
-let grid = buildGrid(puzzle);
-let cages = parseCages(puzzle);
-let tiles = new Array(puzzle.size).fill(0).map((_, i) => i + 1);
+import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell } from './util';
+import puzzles, { Puzzle } from './puzzles';
 
 export const DRAGGABLE_TYPE = 'TILE';
 
@@ -27,11 +22,19 @@ interface CellState extends GridCell {
   valid?: boolean;
 }
 
-let initialGrid: CellState[] = grid.map((cell) => ({ ...cell, value: null, valid: false }));
-
 export default function App() {
-  let [grid, setGrid] = React.useState<CellState[]>(initialGrid);
+  let [puzzleIndex, setPuzzleIndex] = React.useState<number>(0);
+  let puzzle = puzzles[puzzleIndex];
+  let tiles = new Array(puzzle.size).fill(0).map((_, i) => i + 1);
+  let [cages, setCages] = React.useState<Cage[]>(parseCages(puzzle));
+  let [grid, setGrid] = React.useState<CellState[]>(initialGrid(puzzle));
   let [complete, setComplete] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setCages(parseCages(puzzles[puzzleIndex]));
+    setGrid(initialGrid(puzzles[puzzleIndex]));
+    setComplete(false);
+  }, [puzzleIndex]);
 
   React.useEffect(() => {
     if (gridFull(grid) || complete) {
@@ -48,22 +51,26 @@ export default function App() {
 
       if (item && item.id) {
         updatedGrid[item.id].value = temp;
-        updatedGrid = validateCage(updatedGrid, item.id);
+        updatedGrid = validateCage(updatedGrid, cages, item.id);
       }
 
-      setGrid(validateCage(updatedGrid, index));
+      setGrid(validateCage(updatedGrid, cages, index));
     };
   }
 
   function resetGrid() {
-    setGrid(initialGrid);
+    setGrid(initialGrid(puzzle));
     setComplete(false);
+  }
+
+  function nextPuzzle() {
+    setPuzzleIndex((index) => (index < puzzles.length - 1 ? index + 1 : 0));
   }
 
   return (
     <React.Fragment>
       <h1>Calcudoku</h1>
-      <Header complete={complete} resetGrid={resetGrid} />
+      <Header complete={complete} resetGrid={resetGrid} nextPuzzle={nextPuzzle} />
       <DndProvider backend={isTouchEnabled() ? TouchBackend : HTML5Backend}>
         <Grid size={puzzle.size}>
           {grid.map((cell, i) => (
@@ -93,7 +100,7 @@ export default function App() {
   );
 }
 
-function validateCage(grid: CellState[], index: number) {
+function validateCage(grid: CellState[], cages: Cage[], index: number) {
   let cage = cages.filter((cage) => cage.cells.includes(index))[0];
   let operands: number[] = grid
     .filter((cell, i) => cage.cells.includes(i) && cell.value !== null)
@@ -112,6 +119,14 @@ function gridFull(grid: CellState[]) {
   }
 
   return true;
+}
+
+function initialGrid(puzzle: Puzzle) {
+  return buildGrid(puzzle).map((cell) => ({
+    ...cell,
+    value: null,
+    valid: false,
+  }));
 }
 
 function isTouchEnabled() {
