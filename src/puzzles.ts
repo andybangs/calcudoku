@@ -17,6 +17,29 @@ let puzzles: Puzzle[] = [
     ],
   },
   {
+    size: 4,
+    cages: [
+      '11 + A1 B1 C1 A2',
+      '1 = D1',
+      '1 = B2',
+      '16 + C2 D2 D3 D4 C4 B4',
+      '8 + A3 B3 C3',
+      '3 = A4',
+    ],
+  },
+  {
+    size: 4,
+    cages: ['11 + A1 A2 B1 B2', '2 = C1', '21 + D1 D2 D3 D4 C2 C3 C4 B3', '4 + A3 A4', '2 = B4'],
+  },
+  {
+    size: 4,
+    cages: ['9 + A1 A2 B1', '4 + C1 D1 D2', '9 + D3 D4 C4', '6 + A3 A4 B4', '12 + B2 B3 C2 C3'],
+  },
+  {
+    size: 4,
+    cages: ['10 + A1 A2 A3 B1 B2 C1', '30 + D1 D2 D3 D4 C2 C3 C4 B3 B4 A4'],
+  },
+  {
     size: 6,
     cages: [
       '11 + A1 A2',
