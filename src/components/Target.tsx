@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import styled, { css, keyframes } from 'styled-components';
+import { DRAGGABLE_TYPE, Item } from '../App';
 
 let targetScale = keyframes`
   0% { transform: scale(1); }
@@ -38,23 +39,25 @@ interface TargetProps {
   children: number | null;
   index: number;
   complete: boolean;
-  handleDrop(value: number | null): void;
+  handleDrop(item: Item | null): void;
 }
 
 export function Target({ children, index, complete, handleDrop }: TargetProps) {
   let ref = React.useRef(null);
 
-  let [{ isDragging }, drag] = useDrag({
-    item: { type: 'Tile', value: children },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
+  let [, drag] = useDrag({
+    item: { id: index, type: DRAGGABLE_TYPE, value: children },
+    end(_, monitor) {
+      if (!monitor.didDrop()) {
+        handleDrop(null);
+      }
+    },
   });
 
   let [{ isOver }, drop] = useDrop({
-    accept: 'Tile',
-    drop(item: any) {
-      handleDrop(item.value);
+    accept: DRAGGABLE_TYPE,
+    drop(item: Item) {
+      handleDrop(item);
     },
     collect(monitor) {
       return {
@@ -64,12 +67,6 @@ export function Target({ children, index, complete, handleDrop }: TargetProps) {
   });
 
   drag(drop(ref));
-
-  React.useEffect(() => {
-    if (isDragging && children) {
-      handleDrop(null);
-    }
-  });
 
   return (
     <TargetCont ref={ref} index={index} complete={complete} isOver={isOver}>

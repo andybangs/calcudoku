@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDrag, useDragLayer } from 'react-dnd';
 import styled from 'styled-components';
+import { DRAGGABLE_TYPE } from '../App';
 
 let TileCont = styled.div<{ size: number }>`
   width: 64px;
@@ -26,9 +27,7 @@ interface TileProps {
 export function Tile({ children, size }: TileProps) {
   let ref = React.useRef(null);
 
-  let [, drag] = useDrag({
-    item: { type: 'Tile', value: children },
-  });
+  let [, drag] = useDrag({ item: { type: DRAGGABLE_TYPE, value: children } });
 
   drag(ref);
 

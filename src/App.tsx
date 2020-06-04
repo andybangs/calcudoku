@@ -14,6 +14,14 @@ let grid = buildGrid(puzzle);
 let cages = parseCages(puzzle);
 let tiles = new Array(puzzle.size).fill(0).map((_, i) => i + 1);
 
+export const DRAGGABLE_TYPE = 'TILE';
+
+export type Item = {
+  id?: number;
+  type: string;
+  value: number | null;
+};
+
 interface CellState extends GridCell {
   value: number | null;
   valid?: boolean;
@@ -25,28 +33,25 @@ export default function App() {
   let [grid, setGrid] = React.useState<CellState[]>(initialGrid);
   let [complete, setComplete] = React.useState<boolean>(false);
 
-  function setVal(index: number) {
-    return (value: number | null) => {
-      let updatedGrid = grid.map((cell, i) => (i === index ? { ...cell, value } : cell));
-      let cage = cages.filter((cage) => cage.cells.includes(index))[0];
-      let operands: number[] = updatedGrid
-        .filter((cell, i) => cage.cells.includes(i) && cell.value !== null)
-        .map((cell) => cell.value as number);
+  React.useEffect(() => {
+    if (gridFull(grid) || complete) {
+      setComplete(gridValid(grid.map((cell) => cell.value as number)));
+    }
+  }, [grid, complete]);
 
-      if (
-        operands.length === cage.cells.length &&
-        cageValid(cage.result, cage.operator, operands)
-      ) {
-        updatedGrid[cage.cells[0]].valid = true;
-      } else {
-        updatedGrid[cage.cells[0]].valid = false;
+  function handleDrop(index: number) {
+    return (item: Item | null) => {
+      let temp = grid[index].value;
+      let updatedGrid = grid.map((cell, i) =>
+        i === index ? { ...cell, value: item ? item.value : null } : cell
+      );
+
+      if (item && item.id) {
+        updatedGrid[item.id].value = temp;
+        updatedGrid = validateCage(updatedGrid, item.id);
       }
 
-      setGrid(updatedGrid);
-
-      if (gridFull(updatedGrid)) {
-        setComplete(gridValid(updatedGrid.map((cell) => cell.value as number)));
-      }
+      setGrid(validateCage(updatedGrid, index));
     };
   }
 
@@ -68,7 +73,7 @@ export default function App() {
               borderRight={cell.borderRight}
             >
               {cell.badge && <Badge valid={cell.valid}>{cell.badge}</Badge>}
-              <Target index={i} complete={complete} handleDrop={setVal(i)}>
+              <Target index={i} complete={complete} handleDrop={handleDrop(i)}>
                 {cell.value}
               </Target>
             </Cell>
@@ -85,6 +90,17 @@ export default function App() {
       </DndProvider>
     </React.Fragment>
   );
+}
+
+function validateCage(grid: CellState[], index: number) {
+  let cage = cages.filter((cage) => cage.cells.includes(index))[0];
+  let operands: number[] = grid
+    .filter((cell, i) => cage.cells.includes(i) && cell.value !== null)
+    .map((cell) => cell.value as number);
+  let valid =
+    operands.length === cage.cells.length && cageValid(cage.result, cage.operator, operands);
+
+  return grid.map((cell, i) => (i === cage.cells[0] ? { ...cell, valid } : cell));
 }
 
 function gridFull(grid: CellState[]) {
