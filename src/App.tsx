@@ -62,6 +62,7 @@ export default function App() {
 
   return (
     <React.Fragment>
+      <h1>Calcudoku</h1>
       <Header complete={complete} resetGrid={resetGrid} />
       <DndProvider backend={isTouchEnabled() ? TouchBackend : HTML5Backend}>
         <Grid size={puzzle.size}>

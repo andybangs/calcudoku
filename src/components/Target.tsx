@@ -47,6 +47,9 @@ export function Target({ children, index, complete, handleDrop }: TargetProps) {
 
   let [, drag] = useDrag({
     item: { id: index, type: DRAGGABLE_TYPE, value: children },
+    canDrag() {
+      return !!children;
+    },
     end(_, monitor) {
       if (!monitor.didDrop()) {
         handleDrop(null);

@@ -7,8 +7,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   touch-action: pan-y;
   user-select: none;
 }
