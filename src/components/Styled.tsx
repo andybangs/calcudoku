@@ -1,5 +1,25 @@
 import styled from 'styled-components';
 
+export let Button = styled.button`
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font: inherit;
+  font-size: 0.9em;
+  font-weight: 500;
+  cursor: pointer;
+  color: #000;
+  background-color: inherit;
+  opacity: 0.5;
+  transition: opacity 100ms linear;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
 export let Grid = styled.div<{ size: number }>`
   width: ${({ size }) => size * 100}px;
   height: ${({ size }) => size * 100}px;

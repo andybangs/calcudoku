@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import reset from './reset.svg';
+import { Button } from './Styled';
+import refresh from './refresh-24px.svg';
 
-let HeaderCont = styled.header`
+let GridHeaderCont = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,40 +17,20 @@ let Text = styled.p`
   font-weight: 500;
 `;
 
-let Button = styled.button`
-  display: flex;
-  align-items: center;
-  padding: 0;
-  border: 0;
-  outline: none;
-  font: inherit;
-  font-size: 0.9em;
-  font-weight: 500;
-  cursor: pointer;
-  color: #000;
-  background-color: inherit;
-  opacity: 0.5;
-  transition: opacity 100ms linear;
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
 let Icon = styled.img`
-  width: 1em;
-  margin-left: 0.25em;
+  width: 1.2em;
+  margin-left: 0.2em;
 `;
 
-interface HeaderProps {
+interface GridHeaderProps {
   complete: boolean;
   resetGrid(): void;
   nextPuzzle(): void;
 }
 
-export function Header({ complete, resetGrid, nextPuzzle }: HeaderProps) {
+export function GridHeader({ complete, resetGrid, nextPuzzle }: GridHeaderProps) {
   return (
-    <HeaderCont>
+    <GridHeaderCont>
       {complete ? (
         <React.Fragment>
           <Text>
@@ -64,10 +45,10 @@ export function Header({ complete, resetGrid, nextPuzzle }: HeaderProps) {
         <React.Fragment>
           <Text>Drag the tiles into the grid</Text>
           <Button onClick={resetGrid}>
-            Reset <Icon src={reset} alt="" />
+            Reset <Icon src={refresh} alt="" />
           </Button>
         </React.Fragment>
       )}
-    </HeaderCont>
+    </GridHeaderCont>
   );
 }

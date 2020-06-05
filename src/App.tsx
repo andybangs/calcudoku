@@ -2,7 +2,8 @@ import React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
-import { Header } from './components/Header';
+import { AppHeader } from './components/AppHeader';
+import { GridHeader } from './components/GridHeader';
 import { Grid, Cell, Badge, Tiles } from './components/Styled';
 import { Target } from './components/Target';
 import { Tile, TilePreview } from './components/Tile';
@@ -69,8 +70,8 @@ export default function App() {
 
   return (
     <React.Fragment>
-      <h1>Calcudoku</h1>
-      <Header complete={complete} resetGrid={resetGrid} nextPuzzle={nextPuzzle} />
+      <AppHeader size={puzzle.size} />
+      <GridHeader complete={complete} resetGrid={resetGrid} nextPuzzle={nextPuzzle} />
       <DndProvider backend={isTouchEnabled() ? TouchBackend : HTML5Backend}>
         <Grid size={puzzle.size}>
           {grid.map((cell, i) => (
