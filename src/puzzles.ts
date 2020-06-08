@@ -1,9 +1,19 @@
 export type Puzzle = {
   size: number;
   cages: string[];
+  source?: string;
 };
 
 let puzzles: Puzzle[] = [
+  {
+    size: 3,
+    cages: ['5 + A1 A2', '3 + B1 C1', '3 = B2', '4 + C2 C3', '3 + A3 B3'],
+    source: 'https://www.youtube.com/watch?v=vbmohVTtDgs',
+  },
+  {
+    size: 3,
+    cages: ['2 - A1 B1', '2 = C1', '2 * A2 A3', '3 / B2 C2', '5 + B3 C3'],
+  },
   {
     size: 4,
     cages: [
@@ -40,6 +50,25 @@ let puzzles: Puzzle[] = [
     cages: ['10 + A1 A2 A3 B1 B2 C1', '30 + D1 D2 D3 D4 C2 C3 C4 B3 B4 A4'],
   },
   {
+    size: 5,
+    cages: [
+      '2 - A1 A2',
+      '2 / B1 C1',
+      '1 - D1 E1',
+      '1 = B2',
+      '2 - C2 D2',
+      '9 + E2 E3 E4',
+      '6 * A3 B3',
+      '4 = C3',
+      '3 + D3 D4',
+      '3 - A4 A5',
+      '15 * B4 C4',
+      '9 + B5 C5',
+      '1 - D5 E5',
+    ],
+    source: 'https://www.kenkenpuzzle.com',
+  },
+  {
     size: 6,
     cages: [
       '11 + A1 A2',
@@ -58,6 +87,7 @@ let puzzles: Puzzle[] = [
       '8 + A6 B6 C6',
       '2 / D6 E6',
     ],
+    source: 'https://en.wikipedia.org/wiki/KenKen',
   },
 ];
 
