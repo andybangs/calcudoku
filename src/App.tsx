@@ -30,11 +30,14 @@ export default function App() {
   let [cages, setCages] = React.useState<Cage[]>(parseCages(puzzle));
   let [grid, setGrid] = React.useState<CellState[]>(initialGrid(puzzle));
   let [complete, setComplete] = React.useState<boolean>(false);
+  let [dirty, setDirty] = React.useState<boolean>(false);
+  let empty = gridEmpty(grid);
 
   React.useEffect(() => {
     setCages(parseCages(puzzles[puzzleIndex]));
     setGrid(initialGrid(puzzles[puzzleIndex]));
     setComplete(false);
+    setDirty(false);
   }, [puzzleIndex]);
 
   React.useEffect(() => {
@@ -45,6 +48,10 @@ export default function App() {
 
   function handleDrop(index: number) {
     return (item: Item | null) => {
+      if (!dirty) {
+        setDirty(true);
+      }
+
       let temp = grid[index].value;
       let updatedGrid = grid.map((cell, i) =>
         i === index ? { ...cell, value: item ? item.value : null } : cell
@@ -66,6 +73,7 @@ export default function App() {
   function resetGrid() {
     setGrid(initialGrid(puzzle));
     setComplete(false);
+    setDirty(false);
   }
 
   function nextPuzzle() {
@@ -88,9 +96,9 @@ export default function App() {
               {cell.badge && <Badge valid={cell.valid}>{cell.badge}</Badge>}
               <Target
                 index={i}
-                complete={complete}
                 handleDrop={handleDrop(i)}
                 handleDragStart={handleDragStart(i)}
+                animate={(empty && !dirty) || complete}
               >
                 {cell.value}
               </Target>
@@ -124,6 +132,16 @@ function validateCage(grid: CellState[], cages: Cage[], index: number) {
 function gridFull(grid: CellState[]) {
   for (let cell of grid) {
     if (cell.value === null) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function gridEmpty(grid: CellState[]) {
+  for (let cell of grid) {
+    if (cell.value !== null) {
       return false;
     }
   }

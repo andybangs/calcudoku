@@ -11,7 +11,7 @@ let targetScale = keyframes`
 
 let TargetCont = styled.span<{
   children: number | null;
-  complete: boolean;
+  animate: boolean;
   index: number;
   isDragging: boolean;
   isOver: boolean;
@@ -34,19 +34,19 @@ let TargetCont = styled.span<{
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: ${({ complete, index }) =>
-    complete && css`${targetScale} 500ms linear 1 ${index * 50}ms`};
+  animation: ${({ animate, index }) =>
+    animate && css`${targetScale} 500ms linear 1 ${index * 50}ms`};
 `;
 
 interface TargetProps {
   children: number | null;
   index: number;
-  complete: boolean;
+  animate: boolean;
   handleDrop(item: Item | null): void;
   handleDragStart(): void;
 }
 
-export function Target({ children, index, complete, handleDrop, handleDragStart }: TargetProps) {
+export function Target({ children, index, animate, handleDrop, handleDragStart }: TargetProps) {
   let ref = React.useRef(null);
 
   let [{ isDragging }, drag] = useDrag({
@@ -84,7 +84,7 @@ export function Target({ children, index, complete, handleDrop, handleDragStart 
   drag(drop(ref));
 
   return (
-    <TargetCont ref={ref} index={index} complete={complete} isDragging={isDragging} isOver={isOver}>
+    <TargetCont ref={ref} index={index} animate={animate} isDragging={isDragging} isOver={isOver}>
       {children}
     </TargetCont>
   );

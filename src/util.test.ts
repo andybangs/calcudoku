@@ -10,18 +10,12 @@ test('buildGrid', () => {
         "borderRight": true,
       },
       Object {
-        "badge": "4",
+        "badge": "3+",
         "borderBottom": true,
-        "borderRight": true,
+        "borderRight": false,
       },
       Object {
-        "badge": "6+",
-        "borderBottom": false,
-        "borderRight": true,
-      },
-      Object {
-        "badge": "7+",
-        "borderBottom": false,
+        "borderBottom": true,
         "borderRight": false,
       },
       Object {
@@ -29,29 +23,14 @@ test('buildGrid', () => {
         "borderRight": true,
       },
       Object {
-        "badge": "11+",
-        "borderBottom": false,
-        "borderRight": true,
-      },
-      Object {
-        "borderBottom": false,
-        "borderRight": true,
-      },
-      Object {
-        "borderBottom": true,
-        "borderRight": false,
-      },
-      Object {
-        "borderBottom": false,
-        "borderRight": false,
-      },
-      Object {
-        "borderBottom": false,
-        "borderRight": true,
-      },
-      Object {
+        "badge": "3",
         "borderBottom": true,
         "borderRight": true,
+      },
+      Object {
+        "badge": "4+",
+        "borderBottom": false,
+        "borderRight": false,
       },
       Object {
         "badge": "3+",
@@ -59,15 +38,6 @@ test('buildGrid', () => {
         "borderRight": false,
       },
       Object {
-        "borderBottom": false,
-        "borderRight": false,
-      },
-      Object {
-        "borderBottom": false,
-        "borderRight": true,
-      },
-      Object {
-        "badge": "4",
         "borderBottom": false,
         "borderRight": true,
       },
@@ -85,7 +55,7 @@ test('parseCages', () => {
       Object {
         "cells": Array [
           0,
-          4,
+          3,
         ],
         "operator": "+",
         "result": 5,
@@ -93,49 +63,30 @@ test('parseCages', () => {
       Object {
         "cells": Array [
           1,
+          2,
+        ],
+        "operator": "+",
+        "result": 3,
+      },
+      Object {
+        "cells": Array [
+          4,
         ],
         "operator": "=",
-        "result": 4,
-      },
-      Object {
-        "cells": Array [
-          2,
-          6,
-          10,
-        ],
-        "operator": "+",
-        "result": 6,
-      },
-      Object {
-        "cells": Array [
-          3,
-          7,
-        ],
-        "operator": "+",
-        "result": 7,
+        "result": 3,
       },
       Object {
         "cells": Array [
           5,
-          9,
-          13,
           8,
-          12,
         ],
         "operator": "+",
-        "result": 11,
-      },
-      Object {
-        "cells": Array [
-          14,
-        ],
-        "operator": "=",
         "result": 4,
       },
       Object {
         "cells": Array [
-          11,
-          15,
+          6,
+          7,
         ],
         "operator": "+",
         "result": 3,
