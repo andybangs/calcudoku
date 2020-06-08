@@ -13,18 +13,21 @@ let TargetCont = styled.span<{
   children: number | null;
   complete: boolean;
   index: number;
+  isDragging: boolean;
   isOver: boolean;
 }>`
   width: ${({ children, isOver }) => (!children && isOver ? '85%' : '75% ')};
   height: ${({ children, isOver }) => (!children && isOver ? '85%' : '75% ')};
   font-weight: 700;
-  background-color: ${({ children, isOver }) => {
-    if (children && !isOver) return '#ebf7fd';
-    if (children && isOver) return '#219be5';
+  color: ${({ isDragging }) => isDragging && '#fff'};
+  background-color: ${({ children, isDragging, isOver }) => {
+    if (children && !isDragging && !isOver) return '#ebf7fd';
+    if (children && !isDragging && isOver) return '#219be5';
     return 'inherit';
   }};
-  border-style: ${({ children }) => (children ? 'solid' : 'dashed')};
-  border-color: ${({ children, isOver }) => (children || isOver ? '#219be5' : '#bbb')};
+  border-style: ${({ children, isDragging }) => (children && !isDragging ? 'solid' : 'dashed')};
+  border-color: ${({ children, isDragging, isOver }) =>
+    (children && !isDragging) || isOver ? '#219be5' : '#bbb'};
   border-width: 2px;
   border-radius: 12px;
   cursor: ${({ children }) => (children ? 'grab' : 'default')};
@@ -40,20 +43,29 @@ interface TargetProps {
   index: number;
   complete: boolean;
   handleDrop(item: Item | null): void;
+  handleDragStart(): void;
 }
 
-export function Target({ children, index, complete, handleDrop }: TargetProps) {
+export function Target({ children, index, complete, handleDrop, handleDragStart }: TargetProps) {
   let ref = React.useRef(null);
 
-  let [, drag] = useDrag({
+  let [{ isDragging }, drag] = useDrag({
     item: { id: index, type: DRAGGABLE_TYPE, value: children },
     canDrag() {
       return !!children;
+    },
+    begin() {
+      handleDragStart();
     },
     end(_, monitor) {
       if (!monitor.didDrop()) {
         handleDrop(null);
       }
+    },
+    collect(monitor) {
+      return {
+        isDragging: monitor.isDragging(),
+      };
     },
   });
 
@@ -72,7 +84,7 @@ export function Target({ children, index, complete, handleDrop }: TargetProps) {
   drag(drop(ref));
 
   return (
-    <TargetCont ref={ref} index={index} complete={complete} isOver={isOver}>
+    <TargetCont ref={ref} index={index} complete={complete} isDragging={isDragging} isOver={isOver}>
       {children}
     </TargetCont>
   );

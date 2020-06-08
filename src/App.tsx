@@ -59,6 +59,10 @@ export default function App() {
     };
   }
 
+  function handleDragStart(index: number) {
+    return () => setGrid(grid.map((cell, i) => (i === index ? { ...cell, valid: false } : cell)));
+  }
+
   function resetGrid() {
     setGrid(initialGrid(puzzle));
     setComplete(false);
@@ -82,7 +86,12 @@ export default function App() {
               borderRight={cell.borderRight}
             >
               {cell.badge && <Badge valid={cell.valid}>{cell.badge}</Badge>}
-              <Target index={i} complete={complete} handleDrop={handleDrop(i)}>
+              <Target
+                index={i}
+                complete={complete}
+                handleDrop={handleDrop(i)}
+                handleDragStart={handleDragStart(i)}
+              >
                 {cell.value}
               </Target>
             </Cell>
