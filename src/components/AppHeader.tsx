@@ -56,8 +56,8 @@ export function AppHeader({ size }: AppHeaderProps) {
           <img src={info} alt="info" />
         </Button>
       </AppHeaderCont>
-      <InfoDialogOverlay isOpen={dialogVisible} onDismiss={toggleDialogVisible} aria-label="info">
-        <InfoDialogContent>
+      <InfoDialogOverlay isOpen={dialogVisible} onDismiss={toggleDialogVisible}>
+        <InfoDialogContent aria-label="info">
           <CloseButton className="close-button" onClick={toggleDialogVisible}>
             <span aria-hidden>×</span>
           </CloseButton>
