@@ -3,12 +3,12 @@ import styled from 'styled-components';
 import { Button } from './Styled';
 import refresh from './refresh-24px.svg';
 
-let GridHeaderCont = styled.header`
+let GridHeaderCont = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 1.5em;
-  margin-bottom: 1em;
+  margin: 1em 0;
 `;
 
 let Text = styled.p`

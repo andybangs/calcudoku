@@ -1,4 +1,4 @@
-import { Puzzle } from './puzzles';
+import { Puzzle } from './App';
 
 export type GridCell = {
   badge?: string;

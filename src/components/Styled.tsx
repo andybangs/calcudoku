@@ -1,5 +1,10 @@
 import styled from 'styled-components';
 
+export let AppContent = styled.div<{ size: number }>`
+  width: ${({ size }) => size * 100}px;
+  max-width: 90vw;
+`;
+
 export let Button = styled.button`
   display: flex;
   align-items: center;
@@ -21,10 +26,6 @@ export let Button = styled.button`
 `;
 
 export let Grid = styled.div<{ size: number }>`
-  width: ${({ size }) => size * 100}px;
-  height: ${({ size }) => size * 100}px;
-  max-width: 90vw;
-  max-height: 90vw;
   border: solid #777 1px;
   border-radius: 20px;
   display: grid;

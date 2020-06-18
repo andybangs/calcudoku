@@ -2,14 +2,23 @@ import React from 'react';
 import styled from 'styled-components';
 import { DialogOverlay, DialogContent } from '@reach/dialog';
 import { Button } from './Styled';
-import info from './info-24px.svg';
+import info from './info-black-24dp.svg';
 import '@reach/dialog/styles.css';
 
-let AppHeaderCont = styled.div`
-  margin-top: 1em;
+let AppHeaderCont = styled.header`
+  width: 100%;
+  padding: 0.5em 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+`;
+
+let AppHeaderInnerCont = styled.div`
+  width: 600px;
+  max-width: 90vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 let Title = styled.h1`
@@ -21,11 +30,12 @@ let InfoDialogOverlay = styled(DialogOverlay)`
 `;
 
 let InfoDialogContent = styled(DialogContent)`
+  position: fixed;
   box-sizing: border-box;
   width: 100vw;
+  background: #fff;
   margin: 0;
-  background: white;
-  padding: 1rem;
+  padding: 0 1rem;
 `;
 
 let CloseButton = styled(Button)`
@@ -39,9 +49,10 @@ let List = styled.ul`
 
 interface AppHeaderProps {
   size: number;
+  reset(): void;
 }
 
-export function AppHeader({ size }: AppHeaderProps) {
+export function AppHeader({ size, reset }: AppHeaderProps) {
   let [dialogVisible, setDialogVisible] = React.useState(false);
 
   function toggleDialogVisible() {
@@ -51,10 +62,14 @@ export function AppHeader({ size }: AppHeaderProps) {
   return (
     <React.Fragment>
       <AppHeaderCont>
-        <Title>Calcudoku</Title>
-        <Button onClick={toggleDialogVisible}>
-          <img src={info} alt="info" />
-        </Button>
+        <AppHeaderInnerCont>
+          <Title>
+            <Button onClick={reset}>Calcudoku</Button>
+          </Title>
+          <Button onClick={toggleDialogVisible}>
+            <img src={info} alt="info" />
+          </Button>
+        </AppHeaderInnerCont>
       </AppHeaderCont>
       <InfoDialogOverlay isOpen={dialogVisible} onDismiss={toggleDialogVisible}>
         <InfoDialogContent aria-label="info">
@@ -62,7 +77,9 @@ export function AppHeader({ size }: AppHeaderProps) {
             <span aria-hidden>×</span>
           </CloseButton>
           <h2>Rules of Calcudoku</h2>
-          <p>{`The objective is to fill the grid in with the digits 1 through ${size} such that:`}</p>
+          <p>{`The objective is to fill the grid in with the digits 1 through ${
+            size || 'n'
+          } such that:`}</p>
           <List>
             <li>Each row contains exactly one of each digit</li>
             <li>Each column contains exactly one of each digit</li>
