@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from './Styled';
-import refresh from './refresh-24px.svg';
+import refresh from '../icons/refresh-24px.svg';
 
 let GridHeaderCont = styled.div`
   display: flex;

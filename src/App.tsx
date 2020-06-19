@@ -4,12 +4,13 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { AppHeader } from './components/AppHeader';
 import { GridHeader } from './components/GridHeader';
-import { SizeSelect } from './components/SizeSelect';
 import { AppContent, Grid, Cell, Badge, Tiles } from './components/Styled';
 import { Target } from './components/Target';
 import { Tile, TilePreview } from './components/Tile';
 import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell } from './util';
 import puzzles from './puzzles.json';
+
+let puzzleSizes = Object.keys(puzzles).map((str) => parseInt(str, 10));
 
 export const DRAGGABLE_TYPE = 'TILE';
 
@@ -31,9 +32,9 @@ interface CellState extends GridCell {
 }
 
 export default function App() {
-  let [puzzleSize, setPuzzleSize] = React.useState<string>('');
+  let [puzzleSize, setPuzzleSize] = React.useState<number>(3);
   let [puzzleIndex, setPuzzleIndex] = React.useState<number>(0);
-  let currentPuzzles = (puzzles as { [size: string]: Puzzle[] })[puzzleSize];
+  let currentPuzzles = (puzzles as { [size: string]: Puzzle[] })[puzzleSize.toString()];
   let puzzle = currentPuzzles && currentPuzzles[puzzleIndex];
   let tiles = puzzle && new Array(puzzle.size).fill(0).map((_, i) => i + 1);
   let [cages, setCages] = React.useState<Cage[]>(puzzle ? parseCages(puzzle) : []);
@@ -43,13 +44,13 @@ export default function App() {
   let empty = gridEmpty(grid);
 
   React.useEffect(() => {
-    if (currentPuzzles) {
-      setCages(parseCages(currentPuzzles[puzzleIndex]));
-      setGrid(initialGrid(currentPuzzles[puzzleIndex]));
+    if (currentPuzzles && puzzle) {
+      setCages(parseCages(puzzle));
+      setGrid(initialGrid(puzzle));
       setComplete(false);
       setDirty(false);
     }
-  }, [currentPuzzles, puzzleIndex]);
+  }, [currentPuzzles, puzzle]);
 
   React.useEffect(() => {
     if (grid.length && (gridFull(grid) || complete)) {
@@ -87,8 +88,8 @@ export default function App() {
     setDirty(false);
   }
 
-  function resetApp() {
-    setPuzzleSize('');
+  function selectPuzzle(size: number) {
+    setPuzzleSize(size);
     setPuzzleIndex(0);
     setGrid([]);
     setComplete(false);
@@ -100,7 +101,7 @@ export default function App() {
   }
 
   function renderPuzzle() {
-    if (!grid.length) {
+    if (!puzzle || !grid.length) {
       return null;
     }
 
@@ -143,10 +144,8 @@ export default function App() {
 
   return (
     <React.Fragment>
-      <AppHeader size={puzzle ? puzzle.size : 0} reset={resetApp} />
-      <AppContent size={puzzle ? puzzle.size : 6}>
-        {puzzleSize ? renderPuzzle() : <SizeSelect setPuzzleSize={setPuzzleSize} />}
-      </AppContent>
+      <AppHeader sizes={puzzleSizes} size={puzzleSize} selectPuzzle={selectPuzzle} />
+      <AppContent size={puzzleSize}>{renderPuzzle()}</AppContent>
     </React.Fragment>
   );
 }

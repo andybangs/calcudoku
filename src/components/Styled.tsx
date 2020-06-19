@@ -68,6 +68,6 @@ export let Tiles = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-around;
-  margin-top: 1.5em;
-  padding: 0 1em;
+  margin-top: 0.5em;
+  padding: 1em;
 `;
