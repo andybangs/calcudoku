@@ -16,3 +16,7 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
+.no-scroll {
+  touch-action: none;
+}
