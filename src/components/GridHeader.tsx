@@ -8,7 +8,7 @@ let GridHeaderCont = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 1.5em;
-  margin: 1em 0;
+  margin-bottom: 1em;
 `;
 
 let Text = styled.p`

@@ -4,9 +4,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { AppHeader } from './components/AppHeader';
 import { GridHeader } from './components/GridHeader';
-import { AppContent, Grid, Cell, Badge, Tiles } from './components/Styled';
+import { AppContent, Puzzle, Grid, Cell, Badge, TilesCont } from './components/Styled';
 import { Target } from './components/Target';
 import { Tile, TilePreview } from './components/Tile';
+import { useOrientation } from './hooks/use-orientation';
 import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell } from './util';
 import puzzles from './puzzles.json';
 
@@ -32,6 +33,7 @@ interface CellState extends GridCell {
 }
 
 export default function App() {
+  let orientation = useOrientation();
   let [puzzleSize, setPuzzleSize] = React.useState<number>(3);
   let [puzzleIndex, setPuzzleIndex] = React.useState<number>(0);
   let currentPuzzles = (puzzles as { [size: string]: Puzzle[] })[puzzleSize.toString()];
@@ -108,36 +110,39 @@ export default function App() {
     return (
       <React.Fragment>
         <GridHeader complete={complete} resetGrid={resetGrid} nextPuzzle={nextPuzzle} />
-        <DndProvider backend={isTouchEnabled() ? TouchBackend : HTML5Backend}>
-          <Grid size={puzzle.size}>
-            {grid.map((cell, i) => (
-              <Cell
-                key={i}
-                size={puzzle.size}
-                borderBottom={cell.borderBottom}
-                borderRight={cell.borderRight}
-              >
-                {cell.badge && <Badge valid={cell.valid}>{cell.badge}</Badge>}
-                <Target
-                  index={i}
-                  handleDrop={handleDrop(i)}
-                  handleDragStart={handleDragStart(i)}
-                  animate={(empty && !dirty) || complete}
+        <Puzzle orientation={orientation}>
+          <DndProvider backend={isTouchEnabled() ? TouchBackend : HTML5Backend}>
+            <Grid size={puzzle.size}>
+              {grid.map((cell, i) => (
+                <Cell
+                  key={i}
+                  orientation={orientation}
+                  size={puzzle.size}
+                  borderBottom={cell.borderBottom}
+                  borderRight={cell.borderRight}
                 >
-                  {cell.value}
-                </Target>
-              </Cell>
-            ))}
-          </Grid>
-          <Tiles>
-            {tiles.map((label, i) => (
-              <Tile key={i} size={puzzle.size}>
-                {label}
-              </Tile>
-            ))}
-          </Tiles>
-          {isTouchEnabled() && <TilePreview size={puzzle.size} />}
-        </DndProvider>
+                  {cell.badge && <Badge valid={cell.valid}>{cell.badge}</Badge>}
+                  <Target
+                    index={i}
+                    handleDrop={handleDrop(i)}
+                    handleDragStart={handleDragStart(i)}
+                    animate={(empty && !dirty) || complete}
+                  >
+                    {cell.value}
+                  </Target>
+                </Cell>
+              ))}
+            </Grid>
+            <TilesCont orientation={orientation}>
+              {tiles.map((label, i) => (
+                <Tile key={i} orientation={orientation} size={puzzle.size}>
+                  {label}
+                </Tile>
+              ))}
+            </TilesCont>
+            {isTouchEnabled() && <TilePreview orientation={orientation} size={puzzle.size} />}
+          </DndProvider>
+        </Puzzle>
       </React.Fragment>
     );
   }

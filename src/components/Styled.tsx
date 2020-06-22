@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 export let AppContent = styled.div<{ size: number }>`
-  width: ${({ size }) => size * 100}px;
   max-width: 90vw;
+  margin: 1em 0;
 `;
 
 export let Button = styled.button`
@@ -25,6 +25,12 @@ export let Button = styled.button`
   }
 `;
 
+export let Puzzle = styled.div<{ orientation: number }>`
+  display: flex;
+  flex-direction: ${({ orientation }) => (orientation === 0 ? 'column' : 'row')};
+  justify-content: center;
+`;
+
 export let Grid = styled.div<{ size: number }>`
   border: solid #777 1px;
   border-radius: 20px;
@@ -32,13 +38,18 @@ export let Grid = styled.div<{ size: number }>`
   grid-template-columns: repeat(${({ size }) => size}, 1fr);
 `;
 
-export let Cell = styled.div<{ borderRight: boolean; borderBottom: boolean; size: number }>`
+export let Cell = styled.div<{
+  orientation: number;
+  borderRight: boolean;
+  borderBottom: boolean;
+  size: number;
+}>`
   position: relative;
   box-sizing: border-box;
   width: 100px;
   height: 100px;
-  max-width: ${({ size }) => 90 / size}vw;
-  max-height: ${({ size }) => 90 / size}vw;
+  max-width: ${({ orientation, size }) => `${90 / size}${orientation === 0 ? 'vw' : 'vh'}`};
+  max-height: ${({ orientation, size }) => `${90 / size}${orientation === 0 ? 'vw' : 'vh'}`};
   border: solid #777 0;
   border-right-width: ${({ borderRight }) => (borderRight ? '1px' : 0)};
   border-bottom-width: ${({ borderBottom }) => (borderBottom ? '1px' : 0)};
@@ -64,10 +75,10 @@ export let Badge = styled.span<{ valid?: boolean }>`
   z-index: 1;
 `;
 
-export let Tiles = styled.div`
+export let TilesCont = styled.div<{ orientation: number }>`
   display: flex;
-  align-items: center;
+  flex-flow: ${({ orientation }) => (orientation === 0 ? 'row' : 'column')};
   justify-content: space-around;
-  margin-top: 0.5em;
+  margin: ${({ orientation }) => (orientation === 0 ? '0.5em 0 0 0' : '0 0 0 0.5em')};
   padding: 1em;
 `;

@@ -3,11 +3,13 @@ import { useDrag, useDragLayer } from 'react-dnd';
 import styled from 'styled-components';
 import { DRAGGABLE_TYPE } from '../App';
 
-let TileCont = styled.div<{ size: number }>`
+let TileCont = styled.div<{ orientation: number; size: number }>`
   width: 64px;
   height: 64px;
-  max-width: ${({ size }) => (90 / size) * 0.6375}vw;
-  max-height: ${({ size }) => (90 / size) * 0.6375}vw;
+  max-width: ${({ orientation, size }) =>
+    `${(90 / size) * 0.6375}${orientation === 0 ? 'vw' : 'vh'}`};
+  max-height: ${({ orientation, size }) =>
+    `${(90 / size) * 0.6375}${orientation === 0 ? 'vw' : 'vh'}`};
   font-weight: 700;
   background-color: #fff;
   border: solid #219be5 2px;
@@ -21,10 +23,11 @@ let TileCont = styled.div<{ size: number }>`
 
 interface TileProps {
   children: number;
+  orientation: number;
   size: number;
 }
 
-export function Tile({ children, size }: TileProps) {
+export function Tile({ children, orientation, size }: TileProps) {
   let ref = React.useRef(null);
 
   let [, drag] = useDrag({ item: { type: DRAGGABLE_TYPE, value: children } });
@@ -32,7 +35,7 @@ export function Tile({ children, size }: TileProps) {
   drag(ref);
 
   return (
-    <TileCont ref={ref} size={size}>
+    <TileCont ref={ref} orientation={orientation} size={size}>
       {children}
     </TileCont>
   );
@@ -54,10 +57,11 @@ let TilePreviewCont = styled.div`
 `;
 
 interface TilePreviewProps {
+  orientation: number;
   size: number;
 }
 
-export function TilePreview({ size }: TilePreviewProps) {
+export function TilePreview({ orientation, size }: TilePreviewProps) {
   const { item, isDragging, sourceClientOffset } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     isDragging: monitor.isDragging(),
@@ -71,7 +75,9 @@ export function TilePreview({ size }: TilePreviewProps) {
   return (
     <TilePreviewCont>
       <div style={{ transform: `translate(${sourceClientOffset.x}px, ${sourceClientOffset.y}px)` }}>
-        <Thumb size={size}>{item.value}</Thumb>
+        <Thumb orientation={orientation} size={size}>
+          {item.value}
+        </Thumb>
       </div>
     </TilePreviewCont>
   );
