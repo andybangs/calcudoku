@@ -21,12 +21,14 @@ let Container = styled.nav<{ open: boolean }>`
   right: 0;
   background: #fff;
   width: 85%;
+  max-width: 320px;
   height: 100%;
   text-align: left;
   padding: 2em;
   overflow-y: scroll;
   transform: ${({ open }) => (open ? '' : 'translateX(100%)')};
   transition: transform 0.3s;
+  touch-action: none;
   z-index: 4;
 `;
 
@@ -36,16 +38,12 @@ let CloseButton = styled(Button)`
   right: 1em;
 `;
 
-let Title = styled.h2`
+let RulesTitle = styled.h2`
   margin: 0;
 `;
 
-let List = styled.ul`
-  padding-left: 1em;
-`;
-
-let Item = styled.li`
-  margin-bottom: 0.5em;
+let RulesBody = styled.p`
+  margin: 0.5em 0 1.5em 0;
 `;
 
 let Label = styled.label`
@@ -104,20 +102,12 @@ export function Menu({ sizes, open, toggleMenu, puzzleSize, selectPuzzle }: Menu
         <CloseButton onClick={toggleMenu}>
           <img src={close} alt="close" />
         </CloseButton>
-        <Title>Rules of Calcudoku</Title>
-        <p>{`The objective is to fill the grid in with the digits 1 through ${puzzleSize} such that:`}</p>
-        <List>
-          <Item>Each row contains exactly one of each digit</Item>
-          <Item>Each column contains exactly one of each digit</Item>
-          <Item>
-            Each outlined group of cells is a "cage" containing digits which achieve the specified
-            result using the specified mathematical operation: addition (+), subtraction (−),
-            multiplication (*), and division (/)
-          </Item>
-          <Item>
-            Each cell with a single digit but no operation is simply filled with that digit
-          </Item>
-        </List>
+        <RulesTitle>Rules of Calcudoku</RulesTitle>
+        <RulesBody>
+          Complete the grid with digits so that no digit is repeated in any row or column. In
+          addition, the digits within each outlined box will combine arithmetically to make the
+          number in the corner of the box.
+        </RulesBody>
         <Label>
           Puzzle Size:{' '}
           <Select
