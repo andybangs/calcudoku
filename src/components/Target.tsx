@@ -19,15 +19,15 @@ let TargetCont = styled.span<{
   width: ${({ children, isOver }) => (!children && isOver ? '85%' : '75% ')};
   height: ${({ children, isOver }) => (!children && isOver ? '85%' : '75% ')};
   font-weight: 700;
-  color: ${({ isDragging }) => isDragging && '#fff'};
-  background-color: ${({ children, isDragging, isOver }) => {
-    if (children && !isDragging && !isOver) return '#ebf7fd';
-    if (children && !isDragging && isOver) return '#219be5';
+  color: ${({ theme, isDragging }) => isDragging && theme.background};
+  background: ${({ theme, children, isDragging, isOver }) => {
+    if (children && !isDragging && !isOver) return theme.targetBackground;
+    if (children && !isDragging && isOver) return theme.primary;
     return 'inherit';
   }};
   border-style: ${({ children, isDragging }) => (children && !isDragging ? 'solid' : 'dashed')};
-  border-color: ${({ children, isDragging, isOver }) =>
-    (children && !isDragging) || isOver ? '#219be5' : '#bbb'};
+  border-color: ${({ theme, children, isDragging, isOver }) =>
+    (children && !isDragging) || isOver ? theme.primary : theme.targetBorderColor};
   border-width: 2px;
   border-radius: 12px;
   cursor: ${({ children }) => (children ? 'grab' : 'default')};

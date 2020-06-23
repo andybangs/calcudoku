@@ -2,6 +2,7 @@ import React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { AppHeader } from './components/AppHeader';
 import { GridHeader } from './components/GridHeader';
 import { AppContent, Puzzle, Grid, Cell, Badge, TilesCont } from './components/Styled';
@@ -10,6 +11,14 @@ import { Tile, TilePreview } from './components/Tile';
 import { useOrientation } from './hooks/use-orientation';
 import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell } from './util';
 import puzzles from './puzzles.json';
+import { themes } from './themes';
+
+let GlobalStyle = createGlobalStyle<any>`
+  body {
+    background: ${({ theme }) => theme.background};
+    color: ${({ theme }) => theme.textPrimary};
+  }
+`;
 
 let puzzleSizes = Object.keys(puzzles).map((str) => parseInt(str, 10));
 
@@ -34,6 +43,10 @@ interface CellState extends GridCell {
 
 export default function App() {
   let orientation = useOrientation();
+
+  let [themeIndex, setThemeIndex] = React.useState<number>(0);
+  let theme = themes[themeIndex];
+
   let [puzzleSize, setPuzzleSize] = React.useState<number>(3);
   let [puzzleIndex, setPuzzleIndex] = React.useState<number>(0);
   let currentPuzzles = (puzzles as { [size: string]: Puzzle[] })[puzzleSize.toString()];
@@ -109,7 +122,12 @@ export default function App() {
 
     return (
       <React.Fragment>
-        <GridHeader complete={complete} resetGrid={resetGrid} nextPuzzle={nextPuzzle} />
+        <GridHeader
+          complete={complete}
+          resetGrid={resetGrid}
+          nextPuzzle={nextPuzzle}
+          refreshIcon={theme.icons.refresh}
+        />
         <Puzzle orientation={orientation}>
           <DndProvider backend={isTouchEnabled() ? TouchBackend : HTML5Backend}>
             <Grid size={puzzle.size}>
@@ -148,10 +166,19 @@ export default function App() {
   }
 
   return (
-    <React.Fragment>
-      <AppHeader sizes={puzzleSizes} size={puzzleSize} selectPuzzle={selectPuzzle} />
+    <ThemeProvider theme={theme.styles}>
+      <GlobalStyle />
+      <AppHeader
+        sizes={puzzleSizes}
+        size={puzzleSize}
+        selectPuzzle={selectPuzzle}
+        themeIndex={themeIndex}
+        setThemeIndex={setThemeIndex}
+        closeIcon={theme.icons.close}
+        menuIcon={theme.icons.menu}
+      />
       <AppContent size={puzzleSize}>{renderPuzzle()}</AppContent>
-    </React.Fragment>
+    </ThemeProvider>
   );
 }
 

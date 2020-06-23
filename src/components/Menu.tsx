@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from './Styled';
-import close from '../icons/close-black-24dp.svg';
+import { themes } from '../themes';
 
 let Overlay = styled.div<{ open: boolean }>`
   position: fixed;
   width: 100vw;
   height: 100vh;
-  background-color: #333;
+  background: ${({ theme }) => theme.textSecondary};
   opacity: ${({ open }) => (open ? 0.2 : 0)};
   transform: ${({ open }) => (open ? '' : 'translateX(100%)')};
   transition: ${({ open }) => (open ? 'opacity 0.2s' : 'opacity 0.2s, transform 0s 0.2s')};
@@ -19,7 +19,7 @@ let Container = styled.nav<{ open: boolean }>`
   position: fixed;
   top: 0;
   right: 0;
-  background: #fff;
+  background: ${({ theme }) => theme.background};
   width: 85%;
   max-width: 320px;
   height: 100%;
@@ -54,11 +54,12 @@ let Label = styled.label`
 let Select = styled.select`
   padding: 0.25em 0.5em;
   font-size: 0.8em;
-  border: solid #333 2px;
+  border: ${({ theme }) => `solid ${theme.textSecondary} 2px`};
   border-radius: 12px;
-  background: #fff;
+  background: ${({ theme }) => theme.background};
+  color: inherit;
   display: block;
-  margin-top: 0.5em;
+  margin: 0.5em 0 1.5em 0;
 `;
 
 interface MenuProps {
@@ -67,9 +68,21 @@ interface MenuProps {
   toggleMenu(): void;
   puzzleSize: number;
   selectPuzzle(size: number): void;
+  themeIndex: number;
+  setThemeIndex(index: number): void;
+  closeIcon: string;
 }
 
-export function Menu({ sizes, open, toggleMenu, puzzleSize, selectPuzzle }: MenuProps) {
+export function Menu({
+  sizes,
+  open,
+  toggleMenu,
+  puzzleSize,
+  selectPuzzle,
+  themeIndex,
+  setThemeIndex,
+  closeIcon,
+}: MenuProps) {
   React.useEffect(() => {
     if (open) {
       document.body.classList.add('no-scroll');
@@ -100,7 +113,7 @@ export function Menu({ sizes, open, toggleMenu, puzzleSize, selectPuzzle }: Menu
       <Overlay open={open} />
       <Container ref={container} open={open} aria-hidden={!open}>
         <CloseButton onClick={toggleMenu}>
-          <img src={close} alt="close" />
+          <img src={closeIcon} alt="close" />
         </CloseButton>
         <RulesTitle>Rules of Calcudoku</RulesTitle>
         <RulesBody>
@@ -120,6 +133,22 @@ export function Menu({ sizes, open, toggleMenu, puzzleSize, selectPuzzle }: Menu
             {sizes.map((size) => (
               <option key={size} value={size}>
                 {`${size}x${size}`}
+              </option>
+            ))}
+          </Select>
+        </Label>
+        <Label>
+          Theme:{' '}
+          <Select
+            value={themeIndex}
+            onChange={(ev) => {
+              toggleMenu();
+              setThemeIndex(parseInt(ev.target.value, 10));
+            }}
+          >
+            {themes.map((theme, i) => (
+              <option key={theme.name} value={i}>
+                {theme.name}
               </option>
             ))}
           </Select>

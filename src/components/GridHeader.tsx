@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from './Styled';
-import refresh from '../icons/refresh-24px.svg';
 
 let GridHeaderCont = styled.div`
   display: flex;
@@ -26,9 +25,10 @@ interface GridHeaderProps {
   complete: boolean;
   resetGrid(): void;
   nextPuzzle(): void;
+  refreshIcon: string;
 }
 
-export function GridHeader({ complete, resetGrid, nextPuzzle }: GridHeaderProps) {
+export function GridHeader({ complete, resetGrid, nextPuzzle, refreshIcon }: GridHeaderProps) {
   return (
     <GridHeaderCont>
       {complete ? (
@@ -45,7 +45,7 @@ export function GridHeader({ complete, resetGrid, nextPuzzle }: GridHeaderProps)
         <React.Fragment>
           <Text>Drag the tiles into the grid</Text>
           <Button onClick={resetGrid}>
-            Reset <Icon src={refresh} alt="" />
+            Reset <Icon src={refreshIcon} alt="" />
           </Button>
         </React.Fragment>
       )}

@@ -15,14 +15,9 @@ export let Button = styled.button`
   font-size: 0.9em;
   font-weight: 500;
   cursor: pointer;
-  color: #000;
-  background-color: inherit;
-  opacity: 0.5;
+  color: ${({ theme }) => theme.textPrimary};
+  background: inherit;
   transition: opacity 100ms linear;
-
-  &:hover {
-    opacity: 0.8;
-  }
 `;
 
 export let Puzzle = styled.div<{ orientation: number }>`
@@ -32,7 +27,9 @@ export let Puzzle = styled.div<{ orientation: number }>`
 `;
 
 export let Grid = styled.div<{ size: number }>`
-  border: solid #777 1px;
+  border-style: solid;
+  border-color: ${({ theme }) => theme.gridBorderColor};
+  border-width: 1px;
   border-radius: 20px;
   display: grid;
   grid-template-columns: repeat(${({ size }) => size}, 1fr);
@@ -50,7 +47,9 @@ export let Cell = styled.div<{
   height: 100px;
   max-width: ${({ orientation, size }) => `${90 / size}${orientation === 0 ? 'vw' : 'vh'}`};
   max-height: ${({ orientation, size }) => `${90 / size}${orientation === 0 ? 'vw' : 'vh'}`};
-  border: solid #777 0;
+  border-style: solid;
+  border-color: ${({ theme }) => theme.gridBorderColor};
+  border-width: 0;
   border-right-width: ${({ borderRight }) => (borderRight ? '1px' : 0)};
   border-bottom-width: ${({ borderBottom }) => (borderBottom ? '1px' : 0)};
   display: flex;
@@ -65,10 +64,11 @@ export let Badge = styled.span<{ valid?: boolean }>`
   min-width: 1.2em;
   text-align: center;
   padding: 0.2em;
-  color: ${({ valid }) => (valid ? '#fff' : '#333')};
-  background-color: ${({ valid }) => (valid ? '#219be5' : '#fff')};
-  filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 3px 4px);
-  border-color: ${({ valid }) => (valid ? '#219be5' : '#333')};
+  color: ${({ theme, valid }) => (valid ? theme.badgeColorValid : theme.textSecondary)};
+  background: ${({ theme, valid }) => (valid ? theme.primary : theme.background)};
+  font-weight: ${({ theme }) => theme.badgeFontWeight};
+  filter: ${({ theme }) => `drop-shadow(rgba(0, 0, 0, ${theme.shadowOpacity}) 0px 3px 4px)`};
+  border-color: ${({ theme, valid }) => (valid ? theme.primary : theme.textSecondary)};
   border-style: solid;
   border-width: 2px;
   border-radius: 1.5em;

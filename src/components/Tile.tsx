@@ -11,14 +11,14 @@ let TileCont = styled.div<{ orientation: number; size: number }>`
   max-height: ${({ orientation, size }) =>
     `${(90 / size) * 0.6375}${orientation === 0 ? 'vw' : 'vh'}`};
   font-weight: 700;
-  background-color: #fff;
-  border: solid #219be5 2px;
+  background: ${({ theme }) => theme.background};
+  border: ${({ theme }) => `solid ${theme.primary} 2px`};
   border-radius: 12px;
   cursor: grab;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 3px 4px);
+  filter: ${({ theme }) => `drop-shadow(rgba(0, 0, 0, ${theme.shadowOpacity}) 0px 3px 4px)`};
 `;
 
 interface TileProps {
