@@ -11,7 +11,7 @@ import { Tile, TilePreview } from './components/Tile';
 import { useDidUpdate } from './hooks/use-did-update';
 import { useLocalStorage } from './hooks/use-local-storage';
 import { useOrientation } from './hooks/use-orientation';
-import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell } from './util';
+import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell, randomInt } from './util';
 import puzzles from './puzzles.json';
 import { themes } from './themes';
 
@@ -107,14 +107,20 @@ export default function App() {
 
   function selectPuzzle(size: number) {
     setPuzzleSize(size);
-    setPuzzleIndex(0);
+    setPuzzleIndex(randomInt(0, currentPuzzles.length));
     setGrid([]);
     setComplete(false);
     setDirty(false);
   }
 
   function nextPuzzle() {
-    setPuzzleIndex(puzzleIndex < currentPuzzles.length - 1 ? puzzleIndex + 1 : 0);
+    let newIndex = puzzleIndex;
+
+    while (newIndex === puzzleIndex) {
+      newIndex = randomInt(0, currentPuzzles.length);
+    }
+
+    setPuzzleIndex(newIndex);
   }
 
   function renderPuzzle() {
