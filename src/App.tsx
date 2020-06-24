@@ -8,6 +8,8 @@ import { GridHeader } from './components/GridHeader';
 import { AppContent, Puzzle, Grid, Cell, Badge, TilesCont } from './components/Styled';
 import { Target } from './components/Target';
 import { Tile, TilePreview } from './components/Tile';
+import { useDidUpdate } from './hooks/use-did-update';
+import { useLocalStorage } from './hooks/use-local-storage';
 import { useOrientation } from './hooks/use-orientation';
 import { buildGrid, parseCages, cageValid, gridValid, Cage, GridCell } from './util';
 import puzzles from './puzzles.json';
@@ -44,21 +46,21 @@ interface CellState extends GridCell {
 export default function App() {
   let orientation = useOrientation();
 
-  let [themeIndex, setThemeIndex] = React.useState<number>(0);
+  let [themeIndex, setThemeIndex] = useLocalStorage<number>('cdk-themeIndex', 0);
   let theme = themes[themeIndex];
 
-  let [puzzleSize, setPuzzleSize] = React.useState<number>(3);
-  let [puzzleIndex, setPuzzleIndex] = React.useState<number>(0);
+  let [puzzleSize, setPuzzleSize] = useLocalStorage<number>('cdk-puzzleSize', 3);
+  let [puzzleIndex, setPuzzleIndex] = useLocalStorage<number>('cdk-puzzleIndex', 0);
   let currentPuzzles = (puzzles as { [size: string]: Puzzle[] })[puzzleSize.toString()];
   let puzzle = currentPuzzles && currentPuzzles[puzzleIndex];
   let tiles = puzzle && new Array(puzzle.size).fill(0).map((_, i) => i + 1);
-  let [cages, setCages] = React.useState<Cage[]>(puzzle ? parseCages(puzzle) : []);
-  let [grid, setGrid] = React.useState<CellState[]>(puzzle ? initialGrid(puzzle) : []);
-  let [complete, setComplete] = React.useState<boolean>(false);
-  let [dirty, setDirty] = React.useState<boolean>(false);
+  let [cages, setCages] = useLocalStorage<Cage[]>('cdk-cages', puzzle ? parseCages(puzzle) : []);
+  let [grid, setGrid] = useLocalStorage<CellState[]>('cdk-grid', puzzle ? initialGrid(puzzle) : []);
+  let [complete, setComplete] = useLocalStorage<boolean>('cdk-complete', false);
+  let [dirty, setDirty] = useLocalStorage<boolean>('cdk-dirty', false);
   let empty = gridEmpty(grid);
 
-  React.useEffect(() => {
+  useDidUpdate(() => {
     if (currentPuzzles && puzzle) {
       setCages(parseCages(puzzle));
       setGrid(initialGrid(puzzle));
@@ -71,7 +73,7 @@ export default function App() {
     if (grid.length && (gridFull(grid) || complete)) {
       setComplete(gridValid(grid.map((cell) => cell.value as number)));
     }
-  }, [grid, complete]);
+  }, [grid, complete, setComplete]);
 
   function handleDrop(index: number) {
     return (item: Item | null) => {
@@ -112,7 +114,7 @@ export default function App() {
   }
 
   function nextPuzzle() {
-    setPuzzleIndex((index) => (index < currentPuzzles.length - 1 ? index + 1 : 0));
+    setPuzzleIndex(puzzleIndex < currentPuzzles.length - 1 ? puzzleIndex + 1 : 0);
   }
 
   function renderPuzzle() {
